@@ -79,6 +79,7 @@ let uploadData = document.querySelector('.upload-data');
 let deleteData = document.querySelector('.delete-data');
 let downloadData = document.querySelector('.download-data');
 const fileListElement = document.querySelector('.file-list');
+const fileResultElement = document.querySelector('.file-result');
 
 function uploadHandler() {
   console.log('uploadHandler', uploadData);
@@ -109,6 +110,7 @@ const ulClickHandler = event => {
     getFile(target.name)
       .then(result => {
         console.log(result);
+        fileResultElement.innerText = result;
       })
   } else if (target.value == 'удалить') {
     console.log(`удалить файл ${target.name}`);
