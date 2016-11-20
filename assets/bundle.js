@@ -78,6 +78,7 @@ const getAllFiles = () => {
 let uploadData = document.querySelector('.upload-data');
 let deleteData = document.querySelector('.delete-data');
 let downloadData = document.querySelector('.download-data');
+const fileListElement = document.querySelector('.file-list');
 
 function uploadHandler() {
   console.log('uploadHandler', uploadData);
@@ -147,10 +148,9 @@ getAllFiles()
       li.appendChild(buttonDel);
       ul.appendChild(li);
     }
-    console.log(ul);
 
-    document.querySelector('.result').innerHTML = '';
-    document.querySelector('.result').appendChild(ul);
+    fileListElement.innerHTML = '';
+    fileListElement.appendChild(ul);
   });
 
 
