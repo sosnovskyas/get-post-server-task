@@ -4,7 +4,6 @@ const getFile = filename => {
   return new Promise(function (resolve, reject) {
 
     const xhr = new XMLHttpRequest();
-    xhr.responseType = "blob";
     xhr.open('GET', `http://localhost:3000/files/${filename}`, true);
 
     xhr.onload = function () {
