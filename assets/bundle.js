@@ -76,31 +76,14 @@ const getAllFiles = () => {
 };
 
 let uploadData = document.querySelector('.upload-data');
-let deleteData = document.querySelector('.delete-data');
-let downloadData = document.querySelector('.download-data');
 const fileListElement = document.querySelector('.file-list');
 const fileResultElement = document.querySelector('.file-result');
 
 function uploadHandler() {
   console.log('uploadHandler', uploadData);
 }
-function deleteHandler() {
-  console.log('deleteHandler', deleteData);
-}
-function downloadHandler() {
-  getFile(downloadData.value)
-    .then(
-      result => {
-        console.log(result)
-      },
-      error => console.error(error)
-    )
-  ;
-}
 
 document.querySelector('.upload').addEventListener('click', uploadHandler);
-document.querySelector('.delete').addEventListener('click', deleteHandler);
-document.querySelector('.download').addEventListener('click', downloadHandler);
 
 const ulClickHandler = event => {
   const target = event.target;
