@@ -25,6 +25,31 @@ const getFile = filename => {
   });
 };
 
+const delFile = filename => {
+  return new Promise(function (resolve, reject) {
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('DELETE', `http://localhost:3000/files/${filename}`, true);
+
+    xhr.onload = function () {
+      if (this.status == 200) {
+
+        resolve(this.response);
+      } else {
+        let error = new Error(this.statusText);
+        error.code = this.status;
+        reject(error);
+      }
+    };
+
+    xhr.onerror = function () {
+      reject(new Error("Network Error"));
+    };
+
+    xhr.send();
+  });
+};
+
 const getAllFiles = () => {
   return new Promise(function (resolve, reject) {
 
@@ -77,7 +102,20 @@ document.querySelector('.download').addEventListener('click', downloadHandler);
 
 const ulClickHandler = event => {
   const target = event.target;
-  console.log(target);
+
+  if (target.value == 'открыть') {
+    console.log(`открыть файл ${target.name}`);
+    getFile(target.name)
+      .then(result => {
+        console.log(result);
+      })
+  } else if (target.value == 'удалить') {
+    console.log(`удалить файл ${target.name}`);
+    delFile(target.name)
+      .then(result => {
+        console.log(result);
+      })
+  }
 };
 
 getAllFiles()
