@@ -1,0 +1,21 @@
+doctype
+html
+    head
+        meta(charset="UTF-8")
+        title File Server
+    body
+        h2 Загрузка
+        input(type="file" name="file").upload-data
+        input(type='button', value="отправить").upload
+
+        h2 Удаление
+        input(type="text" name="file" placeholder="filename.ext").delete-data
+        input(type='button', value="Удалить").delete
+
+        h2 Получение
+        input(type="text" name="file" placeholder="filename.ext", value='123.txt').download-data
+        input(type='button', value="Загрузить").download
+
+        .result
+
+        script(src='/assets/bundle.js')
