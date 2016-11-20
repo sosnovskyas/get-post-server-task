@@ -97,10 +97,12 @@ const ulClickHandler = event => {
       })
   } else if (target.value == 'удалить') {
     console.log(`удалить файл ${target.name}`);
-    delFile(target.name)
-      .then(result => {
-        console.log(result);
-      })
+    if (confirm(`Удалить файл${target.name}?`)) {
+      delFile(target.name)
+        .then(result => {
+          console.log(result);
+        })
+    }
   }
 };
 
