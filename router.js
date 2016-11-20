@@ -6,6 +6,11 @@ const jade = require('jade');
 
 
 module.exports = (req, res) => {
+  const getFilesList = (cb) => {
+    fs.readdir(path.join(__dirname, 'files'), (err, files) => {
+      cb(files);
+    })
+  };
   const streamErrorHandler = error => {
     let errRes = {};
     switch (error.code) {
@@ -24,12 +29,12 @@ module.exports = (req, res) => {
   };
 
   const downloadRouteHandler = (routePath) => {
-    let filename = routePath.replace(/\/files\//,'');
+    let filename = routePath.replace(/\/files\//, '');
     // удаляем каки из маршрута, ибо нефига тут вложенности пытаться протолкнуть ))
     filename = filename.replace(/.*[\\\/]/, '');
-    const file = fs.ReadStream(path.join(__dirname,'files', filename));
+    const file = fs.ReadStream(path.join(__dirname, 'files', filename));
 
-    console.log('downloadRouteHandler', path.join(__dirname,'files', filename));
+    console.log('downloadRouteHandler', path.join(__dirname, 'files', filename));
     file.pipe(res);
     file.on('error', streamErrorHandler);
 
@@ -63,6 +68,11 @@ module.exports = (req, res) => {
         }
           break;
 
+        case String(pathname.match(/^\/files/g)):
+          getFilesList(files => {
+            res.end(String(files));
+          });
+          break;
         case String(pathname.match(/^\/files\/.*/g)):
           downloadRouteHandler(pathname);
           break;
