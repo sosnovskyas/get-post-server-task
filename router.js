@@ -24,7 +24,9 @@ module.exports = (req, res) => {
   };
 
   const downloadRouteHandler = (routePath) => {
-    const filename = routePath.replace(/\/files\//,'');
+    let filename = routePath.replace(/\/files\//,'');
+    // удаляем каки из маршрута, ибо нефига тут вложенности пытаться протолкнуть ))
+    filename = filename.replace(/.*[\\\/]/, '');
     const file = fs.ReadStream(path.join(__dirname,'files', filename));
 
     console.log('downloadRouteHandler', path.join(__dirname,'files', filename));
