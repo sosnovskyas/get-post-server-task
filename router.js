@@ -13,13 +13,13 @@ module.exports = class Router {
 
     switch (this.req.method) {
       case 'GET':
-        this.GET(this.pathname);
+        this.onGetRequest(this.pathname);
         break;
       case 'POST':
-        this.POST(this.pathname);
+        this.onPostRequest(this.pathname);
         break;
       case 'DELETE':
-        this.DELETE(this.pathname);
+        this.onDeleteRequest(this.pathname);
         break;
     }
   }
@@ -27,8 +27,8 @@ module.exports = class Router {
   /**
    * @return {string}
    */
-  GET(routePath) {
-    console.log('GET', routePath);
+  onGetRequest(routePath) {
+    console.log('onGetRequest', routePath);
 
 
     switch (routePath) {
@@ -74,7 +74,7 @@ module.exports = class Router {
 
   }
 
-  POST(routePath) {
+  onPostRequest(routePath) {
     if (String(routePath.match(/^\/files/g))) {
       console.log('POST: прислан файл');
       let body = '';
@@ -93,7 +93,7 @@ module.exports = class Router {
     }
   }
 
-  DELETE(path) {
+  onDeleteRequest(path) {
     this.res.end(path);
   }
 
