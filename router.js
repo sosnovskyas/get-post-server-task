@@ -4,15 +4,100 @@ const path = require('path');
 const url = require('url');
 const jade = require('jade');
 
+module.exports = class Router {
+  constructor(req, res) {
+    this.req = req;
+    this.res = res;
 
-module.exports = (req, res) => {
-  const getFilesList = (cb) => {
-    fs.readdir(path.join(__dirname, 'files'), (err, files) => {
-      if (err) throw Error('ошибка чтения каталога с файлами');
-      cb(files);
-    })
-  };
-  const streamErrorHandler = error => {
+    this.pathname = decodeURI(url.parse(req.url).pathname);
+
+    switch (this.req.method) {
+      case 'GET':
+        this.GET(this.pathname);
+        break;
+      case 'POST':
+        this.POST(this.pathname);
+        break;
+      case 'DELETE':
+        this.DELETE(this.pathname);
+        break;
+    }
+  }
+
+  /**
+   * @return {string}
+   */
+  GET(routePath) {
+    console.log('GET', routePath);
+
+
+    switch (routePath) {
+      case '/' :
+        let template = new fs.ReadStream(path.join(__dirname, 'index.jade'));
+        template.on('readable', () => {
+          this.res.end(jade.render(template.read()));
+        });
+
+        break;
+
+      case String(routePath.match(/^\/assets\/.*/g)) :
+        // ASSETS
+        const file = fs.ReadStream(path.join(__dirname, routePath));
+
+        file.pipe(this.res);
+        file.on('error', this.streamErrorHandler);
+
+        this.res.on('close', () => {
+          file.destroy();
+        });
+
+        break;
+      case String(routePath.match(/^\/files/g)) :
+        // FILES LIST
+        console.log('Router: get -> files');
+        this.getFilesList(files => {
+          console.log('files', files);
+          this.res.end(String(files));
+        });
+        break;
+
+      case String(routePath.match(/^\/files\/.*/g)) :
+        // GET FILE
+        this.download(routePath);
+        break;
+
+      default:
+        this.res.statusCode = 404;
+        this.res.end('404: Такой путь не найден');
+    }
+
+
+  }
+
+  POST(routePath) {
+    if (String(routePath.match(/^\/files/g))) {
+      console.log('POST: прислан файл');
+      let body = '';
+      this.req
+        .on('data', function (chunk) {
+          body += chunk;
+        })
+        .on('end', function () {
+          fs.writeFile(file);
+          res.writeHead(200);
+          console.log(body);
+          res.end('ok');
+        });
+
+      this.res.end(path);
+    }
+  }
+
+  DELETE(path) {
+    this.res.end(path);
+  }
+
+  streamErrorHandler(error) {
     let errRes = {};
     switch (error.code) {
       case 'ENOENT':
@@ -25,91 +110,30 @@ module.exports = (req, res) => {
         break;
     }
 
-    res.statusCode = errRes.code;
-    res.end(errRes.message);
-  };
+    this.res.statusCode = errRes.code;
+    this.res.end(errRes.message);
+  }
 
-  const downloadRouteHandler = (routePath) => {
+  getFilesList(cb) {
+    console.log('Router: getFilesList(cb) ');
+    fs.readdir(path.join(__dirname, 'files'), (err, files) => {
+      if (err) throw Error('ошибка чтения каталога с файлами');
+      cb(files);
+    })
+  }
+
+  download(routePath) {
     let filename = routePath.replace(/\/files\//, '');
     // удаляем каки из маршрута, ибо нефига тут вложенности пытаться протолкнуть ))
     filename = filename.replace(/.*[\\\/]/, '');
     const file = fs.ReadStream(path.join(__dirname, 'files', filename));
 
     console.log('downloadRouteHandler', path.join(__dirname, 'files', filename));
-    file.pipe(res);
-    file.on('error', streamErrorHandler);
+    file.pipe(this.res);
+    file.on('error', this.streamErrorHandler);
 
-    res.on('close', () => {
+    this.res.on('close', () => {
       file.destroy();
     });
-  };
-
-  let pathname = decodeURI(url.parse(req.url).pathname);
-
-  switch (req.method) {
-    case 'GET':
-      switch (pathname) {
-        case '/':
-          // отдачу файлов следует переделать "правильно", через потоки, с нормальной обработкой ошибок
-          let template = new fs.ReadStream(path.join(__dirname, 'index.jade'));
-          template.on('readable', () => {
-            res.end(jade.render(template.read()));
-          });
-
-          template.on('error', streamErrorHandler);
-          break;
-
-        case String(pathname.match(/^\/assets\/.*/g)): {
-          const file = fs.ReadStream(path.join(__dirname, pathname));
-          file.pipe(res);
-          file.on('error', streamErrorHandler);
-          res.on('close', () => {
-            file.destroy();
-          });
-        }
-          break;
-
-        case String(pathname.match(/^\/files/g)):
-          getFilesList(files => {
-            res.end(String(files));
-          });
-          break;
-        case String(pathname.match(/^\/files\/.*/g)):
-          downloadRouteHandler(pathname);
-          break;
-
-        default:
-          res.statusCode = 400;
-          res.end('плохой роут');
-      }
-      break;
-
-    case 'POST':
-      if (String(pathname.match(/^\/files/g))) {
-        console.log('POST: прислан файл');
-        let body = '';
-        req
-          .on('data', function (chunk) {
-            body += chunk;
-          })
-          .on('end', function () {
-            fs.writeFile(file);
-            res.writeHead(200);
-            console.log(body);
-            res.end('ok');
-          });
-
-        // res.end('ok');
-      } else {
-        res.statusCode = 404;
-        res.end('плохой роут');
-      }
-      break;
-    case 'DELETE':
-      break;
-    default:
-      res.statusCode = 502;
-      res.end("Not implemented");
-      break;
   }
 };

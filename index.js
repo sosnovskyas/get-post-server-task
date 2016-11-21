@@ -30,6 +30,6 @@
 
 'use strict';
 const http = require('http');
-const router = require('./router');
-const server = http.createServer(router);
+const Router = require('./router');
+const server = http.createServer((req, res) => new Router(req,res));
 server.listen(8000);

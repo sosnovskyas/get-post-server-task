@@ -24,7 +24,7 @@ const getFile = filename => {
   return new Promise(function (resolve, reject) {
 
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', `http://localhost:3000/files/${filename}`, true);
+    xhr.open('GET', `http://localhost:8000/files/${filename}`, true);
 
     xhr.onload = function () {
       if (this.status == 200) {
@@ -49,7 +49,7 @@ const postFile = file => {
   return new Promise(function (resolve, reject) {
 
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', `http://localhost:3000/files`, true);
+    xhr.open('POST', `http://localhost:8000/files`, true);
 
     xhr.onload = function () {
       if (this.status == 200) {
@@ -74,7 +74,7 @@ const delFile = filename => {
   return new Promise(function (resolve, reject) {
 
     const xhr = new XMLHttpRequest();
-    xhr.open('DELETE', `http://localhost:3000/files/${filename}`, true);
+    xhr.open('DELETE', `http://localhost:8000/files/${filename}`, true);
 
     xhr.onload = function () {
       if (this.status == 200) {
@@ -99,7 +99,7 @@ const getAllFiles = () => {
   return new Promise(function (resolve, reject) {
 
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', `http://localhost:3000/files`, true);
+    xhr.open('GET', `http://localhost:8000/files`, true);
 
     xhr.onload = function () {
       if (this.status == 200) {
