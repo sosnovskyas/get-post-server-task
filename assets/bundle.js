@@ -1,4 +1,24 @@
 'use strict';
+const ulClickHandler = event => {
+  const target = event.target;
+
+  if (target.value == 'открыть') {
+    console.log(`открыть файл ${target.name}`);
+    getFile(target.name)
+      .then(result => {
+        console.log(result);
+        fileResultElement.innerText = result;
+      })
+  } else if (target.value == 'удалить') {
+    console.log(`удалить файл ${target.name}`);
+    if (confirm(`Удалить файл${target.name}?`)) {
+      delFile(target.name)
+        .then(result => {
+          console.log(result);
+        })
+    }
+  }
+};
 
 const getFile = filename => {
   return new Promise(function (resolve, reject) {
@@ -85,26 +105,6 @@ function uploadHandler() {
 
 document.querySelector('.upload').addEventListener('click', uploadHandler);
 
-const ulClickHandler = event => {
-  const target = event.target;
-
-  if (target.value == 'открыть') {
-    console.log(`открыть файл ${target.name}`);
-    getFile(target.name)
-      .then(result => {
-        console.log(result);
-        fileResultElement.innerText = result;
-      })
-  } else if (target.value == 'удалить') {
-    console.log(`удалить файл ${target.name}`);
-    if (confirm(`Удалить файл${target.name}?`)) {
-      delFile(target.name)
-        .then(result => {
-          console.log(result);
-        })
-    }
-  }
-};
 
 getAllFiles()
   .then(files => {
