@@ -45,6 +45,31 @@ const getFile = filename => {
   });
 };
 
+const postFile = file => {
+  return new Promise(function (resolve, reject) {
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `http://localhost:3000/files`, true);
+
+    xhr.onload = function () {
+      if (this.status == 200) {
+
+        resolve(this.response);
+      } else {
+        let error = new Error(this.statusText);
+        error.code = this.status;
+        reject(error);
+      }
+    };
+
+    xhr.onerror = function () {
+      reject(new Error("Network Error"));
+    };
+
+    xhr.send(file);
+  });
+};
+
 const delFile = filename => {
   return new Promise(function (resolve, reject) {
 
@@ -100,7 +125,14 @@ const fileListElement = document.querySelector('.file-list');
 const fileResultElement = document.querySelector('.file-result');
 
 function uploadHandler() {
-  console.log('uploadHandler', uploadData);
+  console.log('uploadHandler', uploadData.value);
+  postFile(uploadData.value)
+    .then(
+      result => {
+        console.log('uploadHandler: result', result);
+      },
+      console.error
+    )
 }
 
 document.querySelector('.upload').addEventListener('click', uploadHandler);
