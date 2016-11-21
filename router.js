@@ -37,7 +37,6 @@ module.exports = class Router {
         template.on('readable', () => {
           this.res.end(jade.render(template.read()));
         });
-
         break;
 
       case String(routePath.match(/^\/assets\/.*/g)) :
@@ -50,8 +49,8 @@ module.exports = class Router {
         this.res.on('close', () => {
           file.destroy();
         });
-
         break;
+
       case String(routePath.match(/^\/files/g)) :
         // FILES LIST
         console.log('Router: get -> files');
@@ -70,8 +69,6 @@ module.exports = class Router {
         this.res.statusCode = 404;
         this.res.end('404: Такой путь не найден');
     }
-
-
   }
 
   onPostRequest(routePath) {
