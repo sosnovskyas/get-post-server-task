@@ -8,6 +8,7 @@ const jade = require('jade');
 module.exports = (req, res) => {
   const getFilesList = (cb) => {
     fs.readdir(path.join(__dirname, 'files'), (err, files) => {
+      if (err) throw Error('ошибка чтения каталога с файлами');
       cb(files);
     })
   };
@@ -82,7 +83,11 @@ module.exports = (req, res) => {
           res.end('плохой роут');
       }
       break;
+
     case 'POST':
+      if (String(pathname.match(/^\/files/g))) {
+        //
+      }
       break;
     case 'DELETE':
       break;
