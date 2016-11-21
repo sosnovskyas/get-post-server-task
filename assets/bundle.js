@@ -126,7 +126,7 @@ const fileResultElement = document.querySelector('.file-result');
 
 function uploadHandler() {
   console.log('uploadHandler', uploadData.value);
-  postFile(uploadData.value)
+  postFile(uploadData.files[0])
     .then(
       result => {
         console.log('uploadHandler: result', result);

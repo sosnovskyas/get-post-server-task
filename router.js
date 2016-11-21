@@ -86,7 +86,23 @@ module.exports = (req, res) => {
 
     case 'POST':
       if (String(pathname.match(/^\/files/g))) {
-        //
+        console.log('POST: прислан файл');
+        var body = '';
+        req
+          .on('data', function (chunk) {
+            body += chunk;
+          })
+          .on('end', function () {
+            var data = body;
+            res.writeHead(200);
+            console.log(data);
+            res.end('ok');
+          });
+
+        // res.end('ok');
+      } else {
+        res.statusCode = 404;
+        res.end('плохой роут');
       }
       break;
     case 'DELETE':
