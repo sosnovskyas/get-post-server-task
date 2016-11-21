@@ -87,15 +87,15 @@ module.exports = (req, res) => {
     case 'POST':
       if (String(pathname.match(/^\/files/g))) {
         console.log('POST: прислан файл');
-        var body = '';
+        let body = '';
         req
           .on('data', function (chunk) {
             body += chunk;
           })
           .on('end', function () {
-            var data = body;
+            fs.writeFile(file);
             res.writeHead(200);
-            console.log(data);
+            console.log(body);
             res.end('ok');
           });
 
