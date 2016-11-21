@@ -128,7 +128,6 @@ module.exports = class Router {
     filename = filename.replace(/.*[\\\/]/, '');
     const file = fs.ReadStream(path.join(__dirname, 'files', filename));
 
-    console.log('downloadRouteHandler', path.join(__dirname, 'files', filename));
     file.pipe(this.res);
     file.on('error', this.streamErrorHandler);
 
