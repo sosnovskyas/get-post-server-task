@@ -134,7 +134,7 @@ const refresh = () => {
   fileResultElement.innerText = '...loading';
   getAllFiles()
     .then(files => {
-        const fileList = files.split(',');
+        const fileList = files ? files.split(','): [];
         let ul = document.createElement('ul');
         ul.addEventListener('click', ulClickHandler);
         for (let i = 0; i < fileList.length; i++) {
