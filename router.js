@@ -135,11 +135,12 @@ module.exports = class Router {
           linked = false;
         }
 
-        return '413';
+        return 413;
       } else {
         fs.appendFile(fileName, chunk, err => {
           if (err) {
-            throw err;
+            // throw err;
+            return 500;
           }
           console.log('The "data to append" was appended to file!');
         });
@@ -159,8 +160,12 @@ module.exports = class Router {
             const writeResult = writeNext(chunk);
 
             switch (writeResult) {
-              case '413':
+              case 413:
                 reject('413');
+                break;
+
+              case 500:
+                reject('500');
                 break;
 
               default:
