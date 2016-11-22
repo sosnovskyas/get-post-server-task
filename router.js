@@ -74,28 +74,39 @@ module.exports = class Router {
   onPostRequest(routePath) {
     if (String(routePath.match(/^\/files/g))) {
       console.log('POST: прислан файл');
-      const fileName = routePath.replace(/\/files\//, '');
+      const fileName = `files/${routePath.replace(/\/files\//, '')}`;
       let fileData = '';
 
-      this.req
-        .on('data', (chunk) => {
-          fileData += chunk;
-        })
-        .on('end', () => {
-          fs.appendFile(`files/${fileName}`, fileData, (err, result) => {
-            if (err) {
-              this.res.writeHead(500);
-              this.res.end('ошибка сохранения файла на сервере');
-              return;
-            }
+      fs.stat(fileName, (err, stat) => {
+        if(err == null) {
+          console.log('File exists');
+          this.res.statusCode = 409;
+          this.res.end('такой файл уже существует');
 
-            this.res.writeHead(200);
-            if (err)
-              console.log(err);
-            this.res.end(String(result));
-          });
-        });
-      this.res.end('ok');
+        } else if(err.code == 'ENOENT') {
+          this.req
+            .on('data', (chunk) => {
+              fileData += chunk;
+            })
+            .on('end', () => {
+              fs.appendFile(fileName, fileData, (err, result) => {
+                if (err) {
+                  this.res.writeHead(500);
+                  this.res.end('ошибка сохранения файла на сервере');
+                  return;
+                }
+
+                this.res.writeHead(200);
+                if (err)
+                  console.log(err);
+                this.res.end(String(result));
+              });
+            });
+          this.res.end('ok');
+        } else {
+          console.log('Some other error: ', err.code);
+        }
+      });
     }
   }
 
