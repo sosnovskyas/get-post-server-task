@@ -9,6 +9,8 @@ module.exports = class Router {
     this.req = req;
     this.res = res;
 
+    this.maxFileSize = 1048576; // 1MiB
+
     this.pathname = decodeURI(url.parse(req.url).pathname);
 
     switch (this.req.method) {
@@ -75,49 +77,11 @@ module.exports = class Router {
     if (String(routePath.match(/^\/files/g))) {
       console.log('POST: прислан файл');
       const fileName = `files/${routePath.replace(/\/files\//, '')}`;
-      let fileData = '';
-      let received_bytes = 0;
-      let maxSize = 1048576; // 1MiB
 
       this.checkFileExist(fileName)
         .then(
-          () => {
-            // begin write file
-            fs.open(fileName, 'w', (err) => {
-              if (err) {
-                this.res.statusCode = 500;
-              }
-
-              this.req
-                .on('data', (chunk) => {
-                  console.log('onData: next chunk');
-                  received_bytes += chunk.length;
-                  fileData += chunk;
-
-                  if (received_bytes > maxSize) {
-                    fs.unlink(fileName, err => {
-                      console.log('ALERT');
-                      console.log(`fs.unlink ${fileName}`, err);
-                    });
-                    // throw 'qwe'
-                  } else {
-                    fs.appendFile(fileName, chunk, err => {
-                      if (err) throw err;
-                      console.log('The "data to append" was appended to file!');
-                    });
-                  }
-                })
-                .on('end', () => {
-                  // if(received_bytes > maxSize) this.res.statusCode = 413;
-                  if (received_bytes > maxSize) {
-                    this.res.statusCode = 413;
-                  }
-                  this.res.end();
-                })
-                .on('error', () => {
-                  console.log('req err')
-                });
-            });
+          result => {
+            return this.writeFile(result, this.maxFileSize);
           },
           err => {
             if (err == '409') {
@@ -128,18 +92,98 @@ module.exports = class Router {
             this.res.end(err);
           }
         )
+        .then(
+          result => {
+            console.log(result);
+            this.res.end('ok');
+          },
+          err => {
+            console.log(err);
+            if (err == '413') {
+              // file too large
+              this.res.statusCode = 413;
+            } else {
+              this.res.statusCode = 500;
+            }
+            this.res.end(err);
+          }
+        )
     }
   }
 
-  checkFileExist(fileName) {
+  writeFile(fileName, maxSize) {
+    let received_bytes = 0;
+    let overflow = false;
+    let linked = true;
+
+    const writeNext = (chunk) => {
+      received_bytes += chunk.length;
+
+      if (received_bytes > maxSize) {
+        console.log('ROUTER: writeFile - file too large (overflow)');
+        overflow = true;
+      }
+
+      if (overflow) {
+        if (linked) {
+          fs.unlink(fileName, err => {
+            if (err) {
+              console.error('ROUTER: writeFile() -> unlink fail', err);
+            }
+            console.log(`fs.unlink ${fileName}`, err);
+          });
+          linked = false;
+        }
+
+        return '413';
+      } else {
+        fs.appendFile(fileName, chunk, err => {
+          if (err) {
+            throw err;
+          }
+          console.log('The "data to append" was appended to file!');
+        });
+      }
+    };
+
+    return new Promise((resolve, reject) => {
+      fs.open(fileName, 'w', (err) => {
+        if (err) {
+          reject(500);
+        }
+
+        this.req
+          .on('data', (chunk) => {
+            console.log('onData: next chunk');
+
+            const writeResult = writeNext(chunk);
+
+            switch (writeResult) {
+              case '413':
+                reject('413');
+                break;
+
+              default:
+                console.log('writeNext: ok');
+            }
+          })
+          .on('end', () => {
+            resolve('writeFile: ok');
+          })
+        ;
+      });
+    });
+  }
+
+  checkFileExist(file) {
     return new Promise((resolve, reject) => {
       // console.log('begin exct check');
-      fs.stat(fileName, err => {
+      fs.stat(file, err => {
         if (err == null) {
           // console.log('File exist');
           reject('409');
         } else if (err.code == 'ENOENT') {
-          resolve();
+          resolve(file);
         } else {
           reject('Some other error: ' + err.code);
         }
