@@ -70,7 +70,9 @@ const postFile = file => {
     };
 
     xhr.onerror = function () {
-      reject(new Error("Network Error"));
+      let error = new Error(this.statusText);
+      error.code = this.status;
+      reject(error);
     };
 
     xhr.send(file);
@@ -187,10 +189,13 @@ function uploadHandler() {
         setTimeout(() => refresh(), 2000);
       },
       error => {
-        if (error.code == '409')
+        if (error.code == '409') {
           fileResultElement.innerText = 'ERROR UPLOAD: файл уже существует';
-        else
+        } else if (error.code == '413') {
+          fileResultElement.innerText = 'ERROR UPLOAD: файл слишком большой (>1MiB)';
+        } else {
           fileResultElement.innerText = 'ERROR UPLOAD: ' + error;
+        }
       }
     );
 }

@@ -76,42 +76,75 @@ module.exports = class Router {
       console.log('POST: прислан файл');
       const fileName = `files/${routePath.replace(/\/files\//, '')}`;
       let fileData = '';
+      let received_bytes = 0;
+      let maxSize = 1048576; // 1MiB
 
-      fs.stat(fileName, (err) => {
-        if (err == null) {
-          console.log('File exists');
-          this.res.statusCode = 409;
-          this.res.end('такой файл уже существует');
+      this.checkFileExist(fileName)
+        .then(
+          () => {
+            // begin write file
+            fs.open(fileName, 'w', (err) => {
+              if (err) {
+                this.res.statusCode = 500;
+              }
 
-        } else if (err.code == 'ENOENT') {
-          this.req
-            .on('data', (chunk) => {
-              fileData += chunk;
-            })
-            .on('end', () => {
-              fs.appendFile(fileName, fileData, (err, result) => {
-                  if (err) {
-                    this.res.writeHead(500);
-                    this.res.end('ошибка сохранения файла на сервере');
-                    return;
+              this.req
+                .on('data', (chunk) => {
+                  console.log('onData: next chunk');
+                  received_bytes += chunk.length;
+                  fileData += chunk;
+
+                  if (received_bytes > maxSize) {
+                    fs.unlink(fileName, err => {
+                      console.log('ALERT');
+                      console.log(`fs.unlink ${fileName}`, err);
+                    });
+                    // throw 'qwe'
+                  } else {
+                    fs.appendFile(fileName, chunk, err => {
+                      if (err) throw err;
+                      console.log('The "data to append" was appended to file!');
+                    });
                   }
-
-                  this.res.writeHead(200);
-                  if (err)
-                    console.log(err);
-                  this.res.end(String(result));
-                },
-                err => {
-                  this.res.statusCode = 500;
-                  this.res.end(String(err));
+                })
+                .on('end', () => {
+                  // if(received_bytes > maxSize) this.res.statusCode = 413;
+                  if (received_bytes > maxSize) {
+                    this.res.statusCode = 413;
+                  }
+                  this.res.end();
+                })
+                .on('error', () => {
+                  console.log('req err')
                 });
             });
-          this.res.end('ok');
+          },
+          err => {
+            if (err == '409') {
+              this.res.statusCode = 409;
+            } else {
+              this.res.statusCode = 500;
+            }
+            this.res.end(err);
+          }
+        )
+    }
+  }
+
+  checkFileExist(fileName) {
+    return new Promise((resolve, reject) => {
+      // console.log('begin exct check');
+      fs.stat(fileName, err => {
+        if (err == null) {
+          // console.log('File exist');
+          reject('409');
+        } else if (err.code == 'ENOENT') {
+          resolve();
         } else {
-          console.log('Some other error: ', err.code);
+          reject('Some other error: ' + err.code);
         }
       });
-    }
+    });
   }
 
   onDeleteRequest(path) {
@@ -160,4 +193,5 @@ module.exports = class Router {
       file.destroy();
     });
   }
-};
+}
+;
