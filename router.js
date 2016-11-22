@@ -78,33 +78,33 @@ module.exports = class Router {
       let fileData = '';
 
       fs.stat(fileName, (err) => {
-        if(err == null) {
+        if (err == null) {
           console.log('File exists');
           this.res.statusCode = 409;
           this.res.end('такой файл уже существует');
 
-        } else if(err.code == 'ENOENT') {
+        } else if (err.code == 'ENOENT') {
           this.req
             .on('data', (chunk) => {
               fileData += chunk;
             })
             .on('end', () => {
               fs.appendFile(fileName, fileData, (err, result) => {
-                if (err) {
-                  this.res.writeHead(500);
-                  this.res.end('ошибка сохранения файла на сервере');
-                  return;
-                }
+                  if (err) {
+                    this.res.writeHead(500);
+                    this.res.end('ошибка сохранения файла на сервере');
+                    return;
+                  }
 
-                this.res.writeHead(200);
-                if (err)
-                  console.log(err);
-                this.res.end(String(result));
-              },
-              err => {
-                this.res.statusCode = 500;
-                this.res.end(err.message);
-              });
+                  this.res.writeHead(200);
+                  if (err)
+                    console.log(err);
+                  this.res.end(String(result));
+                },
+                err => {
+                  this.res.statusCode = 500;
+                  this.res.end(String(err));
+                });
             });
           this.res.end('ok');
         } else {
@@ -138,7 +138,11 @@ module.exports = class Router {
   getFilesList(cb) {
     console.log('Router: getFilesList(cb) ');
     fs.readdir(path.join(__dirname, 'files'), (err, files) => {
-      if (err) throw Error('ошибка чтения каталога с файлами');
+      if (err) {
+        // throw Error('ошибка чтения каталога с файлами');
+        this.res.statusCode = 500;
+        this.res.end('отстутствует каталог с файлами');
+      }
       cb(files);
     })
   }
