@@ -162,6 +162,9 @@ const refresh = () => {
       fileListElement.innerHTML = '';
       fileListElement.appendChild(ul);
       fileResultElement.innerText = 'ok';
+    },
+    err => {
+      fileResultElement.innerText = 'ERROR LOADING FILE LIST: ' + err;
     });
 };
 
