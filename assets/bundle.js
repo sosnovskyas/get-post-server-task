@@ -179,7 +179,10 @@ function uploadHandler() {
         setTimeout(() => refresh(), 2000);
       },
       error => {
-        fileResultElement.innerText = 'ERROR UPLOAD: ' + error;
+        if (error.code == '409')
+          fileResultElement.innerText = 'ERROR UPLOAD: файл уже существует';
+        else
+          fileResultElement.innerText = 'ERROR UPLOAD: ' + error;
       }
     );
 }
