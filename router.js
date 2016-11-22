@@ -68,8 +68,8 @@ module.exports = class Router {
         break;
 
       default:
-        this.res.statusCode = 404;
-        this.res.end('404: Такой путь не найден');
+        this.res.statusCode = 501;
+        this.res.end('501: неизвестный метод (Method not implemented)');
     }
   }
 
