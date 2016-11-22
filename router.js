@@ -197,6 +197,25 @@ module.exports = class Router {
   }
 
   onDeleteRequest(path) {
+    // fs.unlink(path, callback)
+    this.checkFileExist(path)
+      .then(
+        result => {
+          console.log('onDeleteRequest: file exist', result);
+          fs.unlink((__dirname + result), err => {
+            if (err) {
+              this.res.statusCode = 404;
+              this.res.end('can\'t file delete');
+            }
+            this.res.end();
+          })
+        },
+        err => {
+          this.res.statusCode = 404;
+          this.res.end(err);
+        }
+      )
+    ;
     this.res.end(path);
   }
 

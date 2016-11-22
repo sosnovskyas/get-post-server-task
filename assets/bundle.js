@@ -20,6 +20,7 @@ const ulClickHandler = event => {
         .then(result => {
             console.log(result);
             fileResultElement.innerText = 'file delited ok';
+            refresh();
           },
           err => fileResultElement.innerText = 'ERROR DELETE FILE: ' + err
         )

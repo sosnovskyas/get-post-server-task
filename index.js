@@ -11,12 +11,12 @@
  POST /file.ext
  + пишет всё тело запроса в файл files/file.ext и выдаёт ОК
  + если файл уже есть, то выдаёт ошибку 409
- - при превышении файлом размера 1MB выдаёт ошибку 413
+ + при превышении файлом размера 1MB выдаёт ошибку 413
 
  DELETE /file
- - удаляет файл
- - выводит 200 OK
- - если файла нет, то ошибка 404
+ + удаляет файл
+ + выводит 200 OK
+ + если файла нет, то ошибка 404
 
  Вместо file может быть любое имя файла.
  Так как поддиректорий нет, то при наличии / или .. в пути сервер должен выдавать ошибку 400.
@@ -29,5 +29,5 @@
 'use strict';
 const http = require('http');
 const Router = require('./router');
-const server = http.createServer((req, res) => new Router(req,res));
+const server = http.createServer((req, res) => new Router(req, res));
 server.listen(8000);
