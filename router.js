@@ -140,7 +140,7 @@ module.exports = class Router {
     fs.readdir(path.join(__dirname, 'files'), (err, files) => {
       if (err) {
         // throw Error('ошибка чтения каталога с файлами');
-        this.res.statusCode = 500;
+        this.res.statusCode = 404;
         this.res.end('отстутствует каталог с файлами');
       }
       cb(files);

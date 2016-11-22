@@ -131,41 +131,46 @@ const refresh = () => {
   fileResultElement.innerText = '...loading';
   getAllFiles()
     .then(files => {
-      const fileList = files.split(',');
-      let ul = document.createElement('ul');
-      ul.addEventListener('click', ulClickHandler);
-      for (let i = 0; i < fileList.length; i++) {
-        let li = document.createElement('li');
-        let span = document.createElement('span');
+        const fileList = files.split(',');
+        let ul = document.createElement('ul');
+        ul.addEventListener('click', ulClickHandler);
+        for (let i = 0; i < fileList.length; i++) {
+          let li = document.createElement('li');
+          let span = document.createElement('span');
 
-        let buttonOpen = document.createElement('input');
-        buttonOpen.setAttribute('type', 'button');
-        buttonOpen.setAttribute('class', 'button-open');
-        buttonOpen.setAttribute('name', fileList[i]);
-        buttonOpen.setAttribute('value', 'открыть');
+          let buttonOpen = document.createElement('input');
+          buttonOpen.setAttribute('type', 'button');
+          buttonOpen.setAttribute('class', 'button-open');
+          buttonOpen.setAttribute('name', fileList[i]);
+          buttonOpen.setAttribute('value', 'открыть');
 
-        let buttonDel = document.createElement('input');
-        buttonDel.setAttribute('type', 'button');
-        buttonDel.setAttribute('class', 'button-del');
-        buttonDel.setAttribute('name', fileList[i]);
-        buttonDel.setAttribute('value', 'удалить');
+          let buttonDel = document.createElement('input');
+          buttonDel.setAttribute('type', 'button');
+          buttonDel.setAttribute('class', 'button-del');
+          buttonDel.setAttribute('name', fileList[i]);
+          buttonDel.setAttribute('value', 'удалить');
 
-        span.innerText = fileList[i];
+          span.innerText = fileList[i];
 
 
-        li.appendChild(span);
-        li.appendChild(buttonOpen);
-        li.appendChild(buttonDel);
-        ul.appendChild(li);
-      }
+          li.appendChild(span);
+          li.appendChild(buttonOpen);
+          li.appendChild(buttonDel);
+          ul.appendChild(li);
+        }
 
-      fileListElement.innerHTML = '';
-      fileListElement.appendChild(ul);
-      fileResultElement.innerText = 'ok';
-    },
-    err => {
-      fileResultElement.innerText = 'ERROR LOADING FILE LIST: ' + err;
-    });
+        fileListElement.innerHTML = '';
+        fileListElement.appendChild(ul);
+        fileResultElement.innerText = 'ok';
+      },
+      err => {
+        if (err.code == 404) {
+          fileResultElement.innerText = 'ERROR LOADING FILE LIST: каталог с файлами отсутствует';
+        }
+        else {
+          fileResultElement.innerText = 'ERROR LOADING FILE LIST: каталог с файлами отсутствует' + err;
+        }
+      });
 };
 
 let uploadData = document.querySelector('.upload-data');
