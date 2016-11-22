@@ -77,7 +77,7 @@ module.exports = class Router {
       const fileName = `files/${routePath.replace(/\/files\//, '')}`;
       let fileData = '';
 
-      fs.stat(fileName, (err, stat) => {
+      fs.stat(fileName, (err) => {
         if(err == null) {
           console.log('File exists');
           this.res.statusCode = 409;
@@ -100,6 +100,10 @@ module.exports = class Router {
                 if (err)
                   console.log(err);
                 this.res.end(String(result));
+              },
+              err => {
+                this.res.statusCode = 500;
+                this.res.end(err.message);
               });
             });
           this.res.end('ok');
