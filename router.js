@@ -74,19 +74,27 @@ module.exports = class Router {
   onPostRequest(routePath) {
     if (String(routePath.match(/^\/files/g))) {
       console.log('POST: прислан файл');
-      let body = '';
-      this.req
-        .on('data', function (chunk) {
-          body += chunk;
-        })
-        .on('end', function () {
-          fs.writeFile(file);
-          res.writeHead(200);
-          console.log(body);
-          res.end('ok');
-        });
+      let fileData = '';
 
-      this.res.end(path);
+      this.req
+        .on('data', (chunk) => {
+          fileData += chunk;
+        })
+        .on('end', () => {
+          fs.writeFile('files/file.ext', fileData, (err, result) => {
+            if (err) {
+              this.res.writeHead(500);
+              this.res.end('ошибка сохранения файла на сервере');
+              return;
+            }
+
+            this.res.writeHead(200);
+            if (err)
+              console.log(err);
+            this.res.end(String(result));
+          });
+        });
+      this.res.end('ok');
     }
   }
 
