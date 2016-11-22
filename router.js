@@ -108,6 +108,9 @@ module.exports = class Router {
             this.res.end(err);
           }
         )
+    } else {
+      this.res.statusCode = 501;
+      this.res.end('501: неизвестный метод (Method not implemented)');
     }
   }
 
